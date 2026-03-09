@@ -60,7 +60,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     
     print(f"CRITICAL ERROR on {request.url.path}: {exc}")
     return {
-        "detail": "Database or Server Error. Check your connection.",
+        "detail": f"Database or Server Error: {str(exc)}",
         "error_type": type(exc).__name__
     }
 

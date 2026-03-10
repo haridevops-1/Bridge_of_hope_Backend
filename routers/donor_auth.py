@@ -41,8 +41,8 @@ def signup(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
 
         return new_user
     except Exception as e:
-        print(f"CRITICAL: Database error during signup: {e}")
-        raise HTTPException(status_code=500, detail="Database internal error")
+        print(f"CRITICAL: Error during signup: {e}")
+        raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
 
 # Function to handle donor LOGIN
 @router.post("/login")
@@ -73,5 +73,5 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"CRITICAL: Database error during login: {e}")
-        raise HTTPException(status_code=500, detail="Database error. Check logs.")
+        print(f"CRITICAL: Error during login: {e}")
+        raise HTTPException(status_code=500, detail=f"Login Error: {str(e)}")

@@ -7,7 +7,6 @@ from security_utils import hash_password, verify_password
 
 router = APIRouter(prefix="/api/trust", tags=["Trust Auth"])
 
-
 @router.post("/signup", response_model=schemas.TrustRead)
 def signup(trust_data: schemas.TrustCreate, db: Session = Depends(get_db)):
     print(f"LOG: New trust signup attempt: {trust_data.trust_name} ({trust_data.email_id})")
@@ -42,9 +41,8 @@ def signup(trust_data: schemas.TrustCreate, db: Session = Depends(get_db)):
         print(f"LOG: Trust signup SUCCESS for {trust_data.trust_name}")
         return new_trust
     except Exception as e:
-        print(f"CRITICAL: Database error during trust signup: {e}")
-        raise HTTPException(status_code=500, detail="Database internal error. Check logs.")
-
+        print(f"CRITICAL: Error during trust signup: {e}")
+        raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
 
 @router.post("/login")
 def login(login_data: schemas.TrustLogin, db: Session = Depends(get_db)):
@@ -78,5 +76,5 @@ def login(login_data: schemas.TrustLogin, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"CRITICAL: Database error during trust login: {e}")
-        raise HTTPException(status_code=500, detail="Database error. Please check backend connection.")
+        print(f"CRITICAL: Error during login: {e}")
+        raise HTTPException(status_code=500, detail=f"Login Error: {str(e)}")

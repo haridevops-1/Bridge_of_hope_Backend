@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import get_db
 import models, schemas
+from cloudinary_utils import upload_image
+from security_utils import hash_password, verify_password
 
 # Router for Donor Login and Signup
 router = APIRouter(prefix="/api/donor", tags=["Donor Auth"])
@@ -28,8 +30,8 @@ def signup(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
             mobile_number=user_data.mobile_number,
             city=user_data.city,
             Pincode=user_data.Pincode,
-            password=user_data.password,
-            photo=user_data.photo
+            password=hash_password(user_data.password),
+            photo=upload_image(user_data.photo)
         )
 
         # Add to database and save
@@ -56,8 +58,8 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        # Check if the password matches
-        if user.password != login_data.password:
+        # Verify encrypted password
+        if not verify_password(login_data.password, user.password):
             raise HTTPException(status_code=401, detail="Wrong password")
 
         # If everything is correct, send back the user details

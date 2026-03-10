@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import get_db
 import models, schemas
+from cloudinary_utils import upload_image
+from security_utils import hash_password, verify_password
 
 router = APIRouter(prefix="/api/trust", tags=["Trust Auth"])
 
@@ -24,12 +26,12 @@ def signup(trust_data: schemas.TrustCreate, db: Session = Depends(get_db)):
             trust_address=trust_data.trust_address,
             mobile_number=trust_data.mobile_number,
             email_id=trust_data.email_id,
-            password=trust_data.password,
+            password=hash_password(trust_data.password),
             username=trust_data.username,
             city=trust_data.city,
             pincode=trust_data.pincode,
             license_number=trust_data.license_number,
-            trust_photo=trust_data.trust_photo,
+            trust_photo=upload_image(trust_data.trust_photo),
             is_verified=False
         )
 
@@ -57,7 +59,8 @@ def login(login_data: schemas.TrustLogin, db: Session = Depends(get_db)):
             print(f"LOG: Trust login FAILED - {login_data.email_id} not found.")
             raise HTTPException(status_code=404, detail="Trust not found")
 
-        if trust.password != login_data.password:
+        # Verify encrypted password
+        if not verify_password(login_data.password, trust.password):
             print(f"LOG: Trust login FAILED - Wrong password for {login_data.email_id}")
             raise HTTPException(status_code=401, detail="Wrong password")
 

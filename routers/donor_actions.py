@@ -43,6 +43,7 @@ def create_donation(trust_id: int, donor_id: int, donation_data: schemas.Donatio
         city=donation_data.city,
         pincode=donation_data.pincode,
         notes=donation_data.notes,
+        scheduled_time=donation_data.scheduled_time,
         status="pending",
         created_at=datetime.datetime.now()
     )
